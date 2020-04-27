@@ -24,7 +24,7 @@ def relu_force(X, r_max, r_eq):
                 dist = np.linalg.norm(r)
                 if dist < r_max:
                     # Calculate attraction/repulsion force differential here
-                    F = max(r_eq - dist, 0)*2.0 - max(dist - r_eq, 0)*0.5;
+                    F = max(r_eq - dist, 0)*2.0 - max(dist - r_eq, 0)*0.5
                     dX[i,:] += r * F /dist
 
     return dX
@@ -67,10 +67,10 @@ def apical_constriction_force(X, r_max, r_eq, pref_angle):
 
                 if dist < r_max:
                     # Calculate attraction/repulsion force differential here
-                    F = max(r_eq - dist, 0) * 2.0 - max(dist - r_eq, 0) * 1.5;
-                    dXx += rx * F / dist;
-                    dXy += ry * F / dist;
-                    dXz += rz * F / dist;
+                    F = max(r_eq - dist, 0) * 2.0 - max(dist - r_eq, 0) * 1.5
+                    dXx += rx * F / dist
+                    dXy += ry * F / dist
+                    dXz += rz * F / dist
 
                     # Apical constriction force
                     # Adapted from https://github.com/germannp/yalla (see include/polarity.cuh)
@@ -81,12 +81,12 @@ def apical_constriction_force(X, r_max, r_eq, pref_angle):
                     dBphi = 0.0
 
                     # Polarity vector of i in cartesian coordinates
-                    pix = sin(Xitheta) * cos(Xiphi);
-                    piy = sin(Xitheta) * sin(Xiphi);
+                    pix = sin(Xitheta) * cos(Xiphi)
+                    piy = sin(Xitheta) * sin(Xiphi)
                     piz = cos(Xitheta);
 
                     # dot product between polarity of i and r vector plus correction for preferential angle
-                    prodi = (pix * rx + piy * ry + piz * rz) / dist + cos(pref_angle);
+                    prodi = (pix * rx + piy * ry + piz * rz) / dist + cos(pref_angle)
 
                     # transform r vector to spherical coordinates
                     r_hat_theta = acos(rz / dist)
@@ -94,29 +94,29 @@ def apical_constriction_force(X, r_max, r_eq, pref_angle):
 
                     # Compute rotation to polarity vector
                     dBtheta = -prodi*(cos(Xitheta) * sin(r_hat_theta) * cos(Xiphi - r_hat_phi) - sin(Xitheta) * cos(r_hat_theta))
-                    sin_Xi_theta = sin(Xitheta);
+                    sin_Xi_theta = sin(Xitheta)
                     if abs(sin_Xi_theta) > 1e-10:
                         dBphi = -prodi*(-sin(r_hat_theta) * sin(Xiphi - r_hat_phi) / sin_Xi_theta)
 
                     # Compute displacement due to bending force
-                    dBx = -prodi / dist * pix + prodi*prodi / (dist*dist) * rx;
-                    dBy = -prodi / dist * piy + prodi*prodi / (dist*dist) * ry;
-                    dBz = -prodi / dist * piz + prodi*prodi / (dist*dist) * rz;
+                    dBx = -prodi / dist * pix + prodi*prodi / (dist*dist) * rx
+                    dBy = -prodi / dist * piy + prodi*prodi / (dist*dist) * ry
+                    dBz = -prodi / dist * piz + prodi*prodi / (dist*dist) * rz
 
                     # Bending force contribution to Pj
                     Xjtheta = X[j,3]
                     Xjphi = X[j,4]
 
                     # Polarity vector of j in cartesian coordinates
-                    pjx = sin(Xjtheta) * cos(Xjphi);
-                    pjy = sin(Xjtheta) * sin(Xjphi);
+                    pjx = sin(Xjtheta) * cos(Xjphi)
+                    pjy = sin(Xjtheta) * sin(Xjphi)
                     pjz = cos(Xjtheta);
 
                     # Compute displacement to j due to bending force
-                    prodj = (pjx * rx + pjy * ry + pjz * rz) / dist - cos(pref_angle);
-                    dBx += -prodj / dist * pjx + prodj*prodj / (dist*dist) * rx;
-                    dBy += -prodj / dist * pjy + prodj*prodj / (dist*dist) * ry;
-                    dBz += -prodj / dist * pjz + prodj*prodj / (dist*dist) * rz;
+                    prodj = (pjx * rx + pjy * ry + pjz * rz) / dist - cos(pref_angle)
+                    dBx += -prodj / dist * pjx + prodj*prodj / (dist*dist) * rx
+                    dBy += -prodj / dist * pjy + prodj*prodj / (dist*dist) * ry
+                    dBz += -prodj / dist * pjz + prodj*prodj / (dist*dist) * rz
 
                     # Add apical constriction force contribution to main displacement
                     factor = 0.2

@@ -10,9 +10,9 @@ from math import pi, sin, cos
 def arr_pol_to_float3(arr):
     out = np.zeros((arr.shape[0],3))
     for i in range(arr.shape[0]):
-        out[i,0] = sin(arr[i,0]) * cos(arr[i,1]);
-        out[i,1] = sin(arr[i,0]) * sin(arr[i,1]);
-        out[i,2] = cos(arr[i,0]);
+        out[i,0] = sin(arr[i,0]) * cos(arr[i,1])
+        out[i,1] = sin(arr[i,0]) * sin(arr[i,1])
+        out[i,2] = cos(arr[i,0])
 
     return out
 
@@ -46,12 +46,13 @@ coords_t.append(out_X[:,:3])
 pol_t.append(pol)
 
 from vtkplotter import *
+import time
 pb = ProgressBar(0, T, c='red')
 for t in pb.range():
     take_euler_step(X, dt, apical_constriction_force, r_max, r_eq, preferential_angle)
     pb.print("Integrating")
 
-    if(t % output_int == 0):
+    if t % output_int == 0:
         out_X = np.copy(X)
         pol = arr_pol_to_float3(out_X[:,3:5])
         coords_t.append(out_X[:,:3])
