@@ -33,7 +33,7 @@ vp.show(resetcam=0)
 pb = ProgressBar(0, T, c='red')
 for t in pb.range():
 
-    take_euler_step(X, dt, relu_force, r_max, r_eq)
+    take_euler_step(X, N, dt, relu_force, r_max, r_eq)
 
     pb.print()
     vp.actors = []

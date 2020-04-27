@@ -4,12 +4,10 @@ from math import cos, sin, acos, atan2, pow
 
 
 @njit(parallel=True)
-def relu_force(X, r_max, r_eq):
-
-    n = X.shape[0]
+def relu_force(X, n, r_max, r_eq):
 
     # Initialise displacement array
-    dX = np.zeros(shape=X.shape)
+    dX = np.zeros(shape=(n, X.shape[1]))
 
     # Loop over all cells to compute displacements
     for i in prange(n):
@@ -31,12 +29,10 @@ def relu_force(X, r_max, r_eq):
 
 
 @njit(parallel=True)
-def apical_constriction_force(X, r_max, r_eq, pref_angle):
-
-    n = X.shape[0]
+def apical_constriction_force(X, n, r_max, r_eq, pref_angle):
 
     # Initialise displacement array
-    dX = np.zeros(shape=X.shape)
+    dX = np.zeros(shape=(n, X.shape[1]))
 
     # Loop over all cells to compute displacements
     for i in prange(n):

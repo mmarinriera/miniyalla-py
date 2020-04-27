@@ -49,7 +49,7 @@ from vtkplotter import *
 import time
 pb = ProgressBar(0, T, c='red')
 for t in pb.range():
-    take_euler_step(X, dt, apical_constriction_force, r_max, r_eq, preferential_angle)
+    take_euler_step(X, N, dt, apical_constriction_force, r_max, r_eq, preferential_angle)
     pb.print("Integrating")
 
     if t % output_int == 0:
