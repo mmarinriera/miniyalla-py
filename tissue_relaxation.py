@@ -7,10 +7,9 @@ from Solvers.solvers import take_euler_step
 # Params
 N=100
 T = 100
-output_int = int(T/100)
 r_max = 1.0
 r_eq = 0.8
-dt = 0.01
+dt = 0.1
 
 # Initialise cells
 ini_x = np.random.uniform(low=-1.0, high=1.0, size=N)
