@@ -27,8 +27,8 @@ preferential_angle = 60.0 * pi/180 # in radiants
 
 
 # Initialise cells
-ini_x = np.random.uniform(low=-1.0, high=1.0, size=N)
-ini_y = np.random.uniform(low=-1.0, high=1.0, size=N)
+ini_x = np.random.uniform(low=-2.0, high=2.0, size=N)
+ini_y = np.random.uniform(low=-2.0, high=2.0, size=N)
 ini_z = np.zeros(N)
 ini_theta = np.zeros(N)
 ini_phi = np.ones(N)
@@ -46,7 +46,6 @@ coords_t.append(out_X[:,:3])
 pol_t.append(pol)
 
 from vtkplotter import *
-import time
 pb = ProgressBar(0, T, c='red')
 for t in pb.range():
     take_euler_step(X, N, dt, apical_constriction_force, r_max, r_eq, preferential_angle)
@@ -59,19 +58,60 @@ for t in pb.range():
         pol_t.append(pol)
 
 
-vp = Plotter(verbose=0, interactive=0)
+# View as an interactive time sequence with a slider
 
-vp.camera.SetPosition([20, 20, 10])
-vp.camera.SetFocalPoint([2.5, 2.5, 0])
+from math import floor
+max_time = len(coords_t)
+vp = Plotter(verbose=0, interactive=0)
+vp.camera.SetPosition([10, 10, 10])
+vp.camera.SetFocalPoint([0, 0, 0])
 vp.camera.SetViewUp([0,0,1])
 
+coord_acts = []
+pol_acts = []
 for t in range(len(coords_t)):
 
-    vp.actors = []
+    coords = Spheres(coords_t[t], c='b', r=0.4).off()
+    polarities = Arrows(startPoints=coords_t[t], endPoints=coords_t[t] + pol_t[t], c='r').off()
+    vp.add([coords, polarities])
+    coord_acts.append(coords)
+    pol_acts.append(polarities)
 
-    cells = Spheres(coords_t[t], c='b', r=0.4)
-    polarities = Arrows(startPoints=coords_t[t], endPoints=coords_t[t] + pol_t[t], c='r')
-    vp.add([cells, polarities])
-    vp.show(resetcam=0)
 
-vp.show(resetcam=0, interactive=1)
+def set_time(widget, event):
+    new_time = int(floor(widget.GetRepresentation().GetValue()))
+    for t in range(0, max_time):
+        if t == new_time:
+            coord_acts[t].on()
+            pol_acts[t].on()
+        else:
+            coord_acts[t].off()
+            pol_acts[t].off()
+
+
+vp.addSlider2D(set_time, xmin=0, xmax=max_time-1, value=0, pos=5, title="time")
+
+# set one time point and clone by default
+coord_acts[0].on()
+pol_acts[0].on()
+vp.show(interactive = True, resetcam=0)
+
+
+# View as a non interactive time sequence
+
+# vp = Plotter(verbose=0, interactive=0)
+#
+# vp.camera.SetPosition([20, 20, 10])
+# vp.camera.SetFocalPoint([2.5, 2.5, 0])
+# vp.camera.SetViewUp([0,0,1])
+#
+# for t in range(len(coords_t)):
+#
+#     vp.actors = []
+#
+#     cells = Spheres(coords_t[t], c='b', r=0.4)
+#     polarities = Arrows(startPoints=coords_t[t], endPoints=coords_t[t] + pol_t[t], c='r')
+#     vp.add([cells, polarities])
+#     vp.show(resetcam=0)
+#
+# vp.show(resetcam=0, interactive=1)
