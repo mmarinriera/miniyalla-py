@@ -1,11 +1,11 @@
 # miniyalla-py
 
 A Python implementation of some of the parallel agent based
-models in yalla (https://github.com/germannp/yalla).
+models in [yalla](https://github.com/germannp/yalla).
 
 ### Prerequisites
 
-numba for paralellisation, [vedo](https://github.com/marcomusy/vedo) for visualisation.
+`numba` for paralellisation, [vedo](https://github.com/marcomusy/vedo) for visualisation.
 
 ```bash
 conda install numba
