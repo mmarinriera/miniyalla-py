@@ -5,7 +5,7 @@ from Forces.forces import relu_force
 from Solvers.solvers import take_euler_step
 
 # Params
-N=100
+N = 200
 T = 100
 r_max = 1.0
 r_eq = 0.8
@@ -18,29 +18,14 @@ ini_z = np.random.uniform(low=-1.0, high=1.0, size=N)
 
 X = np.column_stack((ini_x, ini_y, ini_z))
 
-from vtkplotter import *
-
-vp = Plotter(verbose=0, interactive=0)
-vp.camera.SetPosition([20, 20, 10])
-vp.camera.SetFocalPoint([0, 0, 0])
-vp.camera.SetViewUp([0,0,1])
-
-# Display state at t=0
-cells = Spheres(X, c='b', r=0.4)
-vp.add(cells)
-vp.show(resetcam=0)
+from vedo import ProgressBar, Spheres, interactive
 
 pb = ProgressBar(0, T, c='red')
 for t in pb.range():
 
     take_euler_step(X, N, dt, relu_force, r_max, r_eq)
 
+    Spheres(X, c='b', r=0.3).show(axes=1, interactive=0)
     pb.print()
-    vp.actors = []
 
-    cells = Spheres(X, c='b', r=0.4)
-    vp.add(cells)
-    vp.show(resetcam=0)
-
-
-vp.show(resetcam=0, interactive=1)
+interactive()

@@ -3,8 +3,7 @@
 
 import numpy as np
 from numba import cuda
-from math import cos, sin, acos, atan2, hypot, pow, pi
-from cmath import sqrt
+from math import cos, sin, acos, atan2, pow, pi
 
 N=100
 T = 1000
@@ -46,8 +45,6 @@ def compute_displacements(X, dX, n):
                 rx = Xix-Xj[0]
                 ry = Xiy-Xj[1]
                 rz = Xiz-Xj[2]
-                rtheta = Xitheta-Xj[3]
-                rphi = Xiphi-Xj[4]
 
                 dist = pow(rx*rx + ry*ry + rz*rz, 0.5)
                 if dist < r_max:
@@ -191,25 +188,16 @@ for t_interval in range(int(T/output_int)):
 
 #print('\r', "DONE", t, end='')
 
-from vtkplotter import *
-import time
+#######################################################################
+from vedo import Box, Spheres, Arrows, show, interactive
 
-vp = Plotter(verbose=0, interactive=0)
-
-vp.camera.SetPosition([20, 20, 10])
-vp.camera.SetFocalPoint([2.5, 2.5, 0])
-#vp.camera.SetParallelScale(1.8)
-vp.camera.SetViewUp([0,0,1])
+world = Box(pos=(1,1,0), size=(10,10,4), alpha=1).wireframe()
 
 for t in range(len(coords_t)):
-
-    vp.actors = []
-    #print(t)
-
     cells = Spheres(coords_t[t], c='b', r=0.4)
-    polarities = Arrows(startPoints=coords_t[t], endPoints=coords_t[t] + pol_t[t])
-    vp.add([cells, polarities])
-    vp.show(resetcam=0)
-    # time.sleep(0.1)
+    polarities = Arrows(startPoints=coords_t[t],
+                        endPoints=coords_t[t] + pol_t[t], c='tomato')
+    show(world, cells, polarities, interactive=0, viewup='z')
 
-vp.show(resetcam=0, interactive=1)
+interactive()
+
