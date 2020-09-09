@@ -1,10 +1,12 @@
-# Implementation of a cell monolayer undergoing bending due to a change in preferential curvature
+"""Implementation of a cell monolayer undergoing bending
+due to a change in preferential curvature"""
 # Adapted from https://github.com/germannp/yalla (see examples/apical_constriction.cu)
 
 import numpy as np
 from Forces.forces import apical_constriction_force
 from Solvers.solvers import take_euler_step
-from math import pi, sin, cos
+from math import pi, sin, cos, floor
+from vedo import ProgressBar, Spheres, Arrows, buildAxes, Plotter
 
 # Transform polarity vectors from spherical to cartesian coordinates for visualisation
 def arr_pol_to_float3(arr):
@@ -17,7 +19,7 @@ def arr_pol_to_float3(arr):
     return out
 
 # Params
-N=100
+N = 100
 T = 1000
 output_int = int(T/100)
 r_max = 1.0
@@ -45,7 +47,6 @@ pol = arr_pol_to_float3(out_X[:,3:5])
 coords_t.append(out_X[:,:3])
 pol_t.append(pol)
 
-from vtkplotter import *
 pb = ProgressBar(0, T, c='red')
 for t in pb.range():
     take_euler_step(X, N, dt, apical_constriction_force, r_max, r_eq, preferential_angle)
@@ -57,26 +58,20 @@ for t in pb.range():
         coords_t.append(out_X[:,:3])
         pol_t.append(pol)
 
-
+###############################################################################
 # View as an interactive time sequence with a slider
-
-from math import floor
 max_time = len(coords_t)
-vp = Plotter(verbose=0, interactive=0)
-vp.camera.SetPosition([10, 10, 10])
-vp.camera.SetFocalPoint([0, 0, 0])
-vp.camera.SetViewUp([0,0,1])
+vp = Plotter(interactive=False)
 
 coord_acts = []
 pol_acts = []
 for t in range(len(coords_t)):
-
     coords = Spheres(coords_t[t], c='b', r=0.4).off()
-    polarities = Arrows(startPoints=coords_t[t], endPoints=coords_t[t] + pol_t[t], c='r').off()
-    vp.add([coords, polarities])
+    polarities = Arrows(startPoints=coords_t[t],
+                        endPoints=coords_t[t] + pol_t[t], c='t').off()
+    vp += [coords, polarities]
     coord_acts.append(coords)
     pol_acts.append(polarities)
-
 
 def set_time(widget, event):
     new_time = int(floor(widget.GetRepresentation().GetValue()))
@@ -87,31 +82,26 @@ def set_time(widget, event):
         else:
             coord_acts[t].off()
             pol_acts[t].off()
-
-
 vp.addSlider2D(set_time, xmin=0, xmax=max_time-1, value=0, pos=5, title="time")
 
 # set one time point and clone by default
 coord_acts[0].on()
 pol_acts[0].on()
-vp.show(interactive = True, resetcam=0)
+vp += buildAxes(xrange=(-4,4), yrange=(-4,4), zrange=(-2,2))
+vp += __doc__
+vp.show(interactive=True, resetcam=False, viewup='z')
 
 
 # View as a non interactive time sequence
-
-# vp = Plotter(verbose=0, interactive=0)
-#
+# vp = Plotter(interactive=0)
 # vp.camera.SetPosition([20, 20, 10])
 # vp.camera.SetFocalPoint([2.5, 2.5, 0])
 # vp.camera.SetViewUp([0,0,1])
 #
 # for t in range(len(coords_t)):
-#
-#     vp.actors = []
-#
 #     cells = Spheres(coords_t[t], c='b', r=0.4)
 #     polarities = Arrows(startPoints=coords_t[t], endPoints=coords_t[t] + pol_t[t], c='r')
-#     vp.add([cells, polarities])
+#     vp += [cells, polarities]
 #     vp.show(resetcam=0)
 #
 # vp.show(resetcam=0, interactive=1)

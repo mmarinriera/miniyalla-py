@@ -4,6 +4,7 @@ import numpy as np
 from Forces.forces import relu_force
 from Solvers.solvers import take_euler_step
 from math import sin, cos, acos, pi
+from numba import njit, prange
 
 # Params
 N=10
@@ -14,11 +15,9 @@ r_max = 1.0
 r_eq = 0.8
 dt = 0.1
 
-from numba import njit, prange
 @njit(parallel=True)
 def proliferation(X, N, prolif_rate, mean_dist):
     marked_for_division = np.zeros(N)
-    n = N
     for i in prange(N):
         if np.random.uniform(0,1) < prolif_rate:
             # Cell division happens
@@ -45,17 +44,8 @@ ini_z = np.random.uniform(low=-1.0, high=1.0, size=n_max)
 
 X = np.column_stack((ini_x, ini_y, ini_z))
 
-from vtkplotter import *
-
-vp = Plotter(verbose=0, interactive=0)
-vp.camera.SetPosition([20, 20, 10])
-vp.camera.SetFocalPoint([0, 0, 0])
-vp.camera.SetViewUp([0,0,1])
-
-# Display state at t=0
-cells = Spheres(X[:N,:], c='b', r=0.4)
-vp.add(cells)
-vp.show(resetcam=0)
+########################################################
+from vedo import ProgressBar, Spheres,show, interactive
 
 pb = ProgressBar(0, T, c='red')
 for t in pb.range():
@@ -63,12 +53,8 @@ for t in pb.range():
     take_euler_step(X, N, dt, relu_force, r_max, r_eq)
     N = proliferation(X, N, prolif_rate, r_eq)
 
-    pb.print("N= " + str(N))
-    vp.actors = []
-
     cells = Spheres(X[:N,:], c='b', r=0.4)
-    vp.add(cells)
-    vp.show(resetcam=0)
+    show(cells, interactive=0, viewup='z')
+    pb.print("N= " + str(N))
 
-
-vp.show(resetcam=0, interactive=1)
+interactive()
