@@ -6,17 +6,20 @@ import numpy as np
 from Forces.forces import apical_constriction_force
 from Solvers.solvers import take_euler_step
 from math import pi, sin, cos, floor
-from vedo import ProgressBar, Spheres, Arrows, buildAxes, Plotter
+from vedo import ProgressBar, Spheres, Arrows, Plotter, Axes
 
 # Transform polarity vectors from spherical to cartesian coordinates for visualisation
+
+
 def arr_pol_to_float3(arr):
-    out = np.zeros((arr.shape[0],3))
+    out = np.zeros((arr.shape[0], 3))
     for i in range(arr.shape[0]):
-        out[i,0] = sin(arr[i,0]) * cos(arr[i,1])
-        out[i,1] = sin(arr[i,0]) * sin(arr[i,1])
-        out[i,2] = cos(arr[i,0])
+        out[i, 0] = sin(arr[i, 0]) * cos(arr[i, 1])
+        out[i, 1] = sin(arr[i, 0]) * sin(arr[i, 1])
+        out[i, 2] = cos(arr[i, 0])
 
     return out
+
 
 # Params
 N = 100
@@ -25,7 +28,7 @@ output_int = int(T/100)
 r_max = 1.0
 r_eq = 0.8
 dt = 0.1
-preferential_angle = 60.0 * pi/180 # in radiants
+preferential_angle = 60.0 * pi/180  # in radiants
 
 
 # Initialise cells
@@ -38,24 +41,25 @@ ini_phi = np.ones(N)
 X = np.column_stack((ini_x, ini_y, ini_z, ini_theta, ini_phi))
 
 # List to store time series output
-coords_t=[]
-pol_t=[]
+coords_t = []
+pol_t = []
 
 # Save state at t=0
 out_X = np.copy(X)
-pol = arr_pol_to_float3(out_X[:,3:5])
-coords_t.append(out_X[:,:3])
+pol = arr_pol_to_float3(out_X[:, 3:5])
+coords_t.append(out_X[:, :3])
 pol_t.append(pol)
 
 pb = ProgressBar(0, T, c='red')
 for t in pb.range():
-    take_euler_step(X, N, dt, apical_constriction_force, r_max, r_eq, preferential_angle)
+    take_euler_step(X, N, dt, apical_constriction_force,
+                    r_max, r_eq, preferential_angle)
     pb.print("Integrating")
 
     if t % output_int == 0:
         out_X = np.copy(X)
-        pol = arr_pol_to_float3(out_X[:,3:5])
-        coords_t.append(out_X[:,:3])
+        pol = arr_pol_to_float3(out_X[:, 3:5])
+        coords_t.append(out_X[:, :3])
         pol_t.append(pol)
 
 ###############################################################################
@@ -67,11 +71,12 @@ coord_acts = []
 pol_acts = []
 for t in range(len(coords_t)):
     coords = Spheres(coords_t[t], c='b', r=0.4).off()
-    polarities = Arrows(startPoints=coords_t[t],
-                        endPoints=coords_t[t] + pol_t[t], c='t').off()
+    polarities = Arrows(start_pts=coords_t[t],
+                        end_pts=coords_t[t] + pol_t[t], c='t').off()
     vp += [coords, polarities]
     coord_acts.append(coords)
     pol_acts.append(polarities)
+
 
 def set_time(widget, event):
     new_time = int(floor(widget.GetRepresentation().GetValue()))
@@ -82,12 +87,14 @@ def set_time(widget, event):
         else:
             coord_acts[t].off()
             pol_acts[t].off()
-vp.addSlider2D(set_time, xmin=0, xmax=max_time-1, value=0, pos=5, title="time")
+
+
+vp.add_slider(set_time, xmin=0, xmax=max_time-1, value=0, pos=5, title="time")
 
 # set one time point and clone by default
 coord_acts[0].on()
 pol_acts[0].on()
-vp += buildAxes(xrange=(-4,4), yrange=(-4,4), zrange=(-2,2))
+vp += Axes(xrange=(-4, 4), yrange=(-4, 4), zrange=(-2, 2))
 vp += __doc__
 vp.show(interactive=True, resetcam=False, viewup='z')
 
